@@ -1,3 +1,8 @@
+/**
+ * This class generates C code from the parsed program.
+ * It writes the generated C code to a file specified by the Code environment variable.
+ */
+
 import java.io.*;
 
 public class Code {
@@ -12,6 +17,11 @@ public class Code {
 		"}",
 	};
 
+	/**
+	 * Constructs a Code generator and writes the C code to a file.
+	 * @param code the generated C code
+	 * @param env the environment containing variable declarations
+	 */
 	public Code(String code, Environment env) {
 		String fn=System.getenv("Code");
 		if (fn==null)

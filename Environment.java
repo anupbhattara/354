@@ -1,38 +1,67 @@
-// This class provides a stubbed-out environment.
-// You are expected to implement the methods.
-// Accessing an undefined variable should throw an exception.
+// This class provides an environment for variable storage and management.
+// It uses a HashMap to store variable names and their values.
+// Accessing an undefined variable throws an EvalException.
+// The environment also generates C code declarations for all variables.
 
-// Hint!
-// Use the Java API to implement your Environment.
-// Browse:
-//   https://docs.oracle.com/javase/tutorial/tutorialLearningPaths.html
-// Read about Collections.
-// Focus on the Map interface and HashMap implementation.
-// Also:
-//   https://www.tutorialspoint.com/java/java_map_interface.htm
-//   http://www.javatpoint.com/java-map
-// and elsewhere.
+import java.util.*;
 
 public class Environment {
 
-	private String[] map = { "x" };
+	// HashMap to store variable names and their values
+	private Map<String, Double> variables = new HashMap<String, Double>();
 
-	public int put(String var, int val) {
+	/**
+	 * Stores a variable and its value in the environment.
+	 * @param var the variable name
+	 * @param val the value to store
+	 * @return the value that was stored
+	 */
+	public double put(String var, double val) {
+		variables.put(var, val);
 		return val;
 	}
 
-	public int get(int pos, String var) throws EvalException {
-		return 0;
+	/**
+	 * Retrieves the value of a variable from the environment.
+	 * @param pos the position in the source code (for error reporting)
+	 * @param var the variable name to retrieve
+	 * @return the value of the variable
+	 * @throws EvalException if the variable is not defined
+	 */
+	public double get(int pos, String var) throws EvalException {
+		if (!variables.containsKey(var)) {
+			throw new EvalException(pos, "undefined variable: " + var);
+		}
+		return variables.get(var);
 	}
 
+	/**
+	 * Generates C code declarations for all variables in the environment.
+	 * @return C code string with variable declarations
+	 */
 	public String toC() {
-		String s = "";
-		String sep = " ";
-		for (String v : map) {
-			s += sep + v;
+		if (variables.isEmpty()) {
+			return "";
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("double ");
+		
+		// Add all variable names
+		String sep = "";
+		for (String var : variables.keySet()) {
+			sb.append(sep).append(var);
 			sep = ",";
 		}
-		return s == "" ? "" : "int" + s + ";\nx=0;x=x;\n";
+		sb.append(";\n");
+		
+		// Initialize all variables to 0
+		for (String var : variables.keySet()) {
+			sb.append(var).append("=0;");
+		}
+		sb.append("\n");
+		
+		return sb.toString();
 	}
 
 }

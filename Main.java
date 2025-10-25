@@ -1,11 +1,18 @@
-// This is the main class/method for the interpreter/compiler.
-// Each command-line argument is a complete program,
-// which is scanned, parsed, and evaluated.
-// All evaluations share the same environment,
-// so they can share variables.
+/**
+ * This is the main class for the interpreter/compiler.
+ * Each command-line argument is a complete program,
+ * which is scanned, parsed, and evaluated.
+ * All evaluations share the same environment,
+ * so they can share variables.
+ */
 
 public class Main {
 
+	/**
+	 * Main method that processes command-line arguments as programs.
+	 * Each program is parsed, evaluated, and compiled to C code.
+	 * @param args array of program strings to process
+	 */
 	public static void main(String[] args) {
 		Parser parser=new Parser();
 		Environment env=new Environment();
