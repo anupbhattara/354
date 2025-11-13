@@ -82,13 +82,24 @@ public class Scanner {
 		s.add("(");
 		s.add(")");
 		s.add(";");
+		s.add("<");
+		s.add(">");
 	}
 
 	/**
-	 * Initializes the keyword set (currently empty).
+	 * Initializes the keyword set.
 	 * @param s the set to initialize
 	 */
 	private void initKeywords(Set<String> s) {
+		s.add("rd");
+		s.add("wr");
+		s.add("if");
+		s.add("then");
+		s.add("else");
+		s.add("while");
+		s.add("do");
+		s.add("begin");
+		s.add("end");
 	}
 
 	// constructor:
@@ -183,17 +194,26 @@ public class Scanner {
 	 */
 	private void nextOp() {
 		int old=pos;
-		pos=old+2;
-		if (!done()) {
-			String lexeme=program.substring(old,pos);
-			if (operators.contains(lexeme)) {
-				token=new Token(lexeme); // two-char operator
+		char c = program.charAt(pos);
+		
+		// Check for two-character relational operators
+		if (pos + 1 < program.length()) {
+			char next = program.charAt(pos + 1);
+			String twoChar = "" + c + next;
+			
+			// Check for <=, >=, <>, ==
+			if (twoChar.equals("<=") || twoChar.equals(">=") || 
+			    twoChar.equals("<>") || twoChar.equals("==")) {
+				pos = old + 2;
+				token = new Token(twoChar);
 				return;
 			}
 		}
-		pos=old+1;
-		String lexeme=program.substring(old,pos);
-		token=new Token(lexeme); // one-char operator
+		
+		// Single character operator
+		pos = old + 1;
+		String lexeme = program.substring(old, pos);
+		token = new Token(lexeme);
 	}
 
 	/**

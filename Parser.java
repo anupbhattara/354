@@ -146,29 +146,148 @@ public class Parser {
 	}
 
 	/**
-	 * Parses a statement, which is currently an assignment statement followed by a semicolon.
+	 * Parses a relational operator.
+	 * @return the parsed relational operator node, or null if no operator found
+	 * @throws SyntaxException if parsing fails
+	 */
+	private NodeRelop parseRelop() throws SyntaxException {
+		if (curr().equals(new Token("<"))) {
+			match("<");
+			return new NodeRelop(pos(), "<");
+		}
+		if (curr().equals(new Token("<="))) {
+			match("<=");
+			return new NodeRelop(pos(), "<=");
+		}
+		if (curr().equals(new Token(">"))) {
+			match(">");
+			return new NodeRelop(pos(), ">");
+		}
+		if (curr().equals(new Token(">="))) {
+			match(">=");
+			return new NodeRelop(pos(), ">=");
+		}
+		if (curr().equals(new Token("<>"))) {
+			match("<>");
+			return new NodeRelop(pos(), "<>");
+		}
+		if (curr().equals(new Token("=="))) {
+			match("==");
+			return new NodeRelop(pos(), "==");
+		}
+		return null;
+	}
+
+	/**
+	 * Parses a boolean expression.
+	 * @return the parsed boolean expression node
+	 * @throws SyntaxException if parsing fails
+	 */
+	private NodeBoolexpr parseBoolexpr() throws SyntaxException {
+		NodeExpr expr1 = parseExpr();
+		NodeRelop relop = parseRelop();
+		if (relop == null) {
+			throw new SyntaxException(pos(), new Token("relop"), curr());
+		}
+		NodeExpr expr2 = parseExpr();
+		return new NodeBoolexpr(expr1, relop, expr2);
+	}
+
+	/**
+	 * Parses a block, which is a sequence of statements.
+	 * @return the parsed block node
+	 * @throws SyntaxException if parsing fails
+	 */
+	private NodeBlock parseBlock() throws SyntaxException {
+		NodeStmt stmt = parseStmt();
+		if (curr().equals(new Token(";"))) {
+			match(";");
+			// If next token is "end", don't try to parse another block
+			// (this handles the case where a semicolon is followed by "end")
+			if (curr().equals(new Token("end"))) {
+				return new NodeBlock(stmt);
+			}
+			NodeBlock block = parseBlock();
+			return new NodeBlock(stmt, block);
+		}
+		return new NodeBlock(stmt);
+	}
+
+	/**
+	 * Parses a statement, which can be:
+	 * - assignment
+	 * - read (rd id)
+	 * - write (wr expr)
+	 * - if-then or if-then-else
+	 * - while-do
+	 * - begin-end block
 	 * @return the parsed statement node
 	 * @throws SyntaxException if parsing fails
 	 */
 	private NodeStmt parseStmt() throws SyntaxException {
+		// Check for 'rd' keyword
+		if (curr().equals(new Token("rd"))) {
+			match("rd");
+			Token id = curr();
+			match("id");
+			return new NodeStmt(new NodeRd(id.lex()));
+		}
+		
+		// Check for 'wr' keyword
+		if (curr().equals(new Token("wr"))) {
+			match("wr");
+			NodeExpr expr = parseExpr();
+			return new NodeStmt(new NodeWr(expr));
+		}
+		
+		// Check for 'if' keyword
+		if (curr().equals(new Token("if"))) {
+			match("if");
+			NodeBoolexpr boolexpr = parseBoolexpr();
+			match("then");
+			NodeStmt stmt1 = parseStmt();
+			if (curr().equals(new Token("else"))) {
+				match("else");
+				NodeStmt stmt2 = parseStmt();
+				return new NodeStmt(new NodeIf(boolexpr, stmt1, stmt2));
+			}
+			return new NodeStmt(new NodeIf(boolexpr, stmt1));
+		}
+		
+		// Check for 'while' keyword
+		if (curr().equals(new Token("while"))) {
+			match("while");
+			NodeBoolexpr boolexpr = parseBoolexpr();
+			match("do");
+			NodeStmt stmt = parseStmt();
+			return new NodeStmt(new NodeWhile(boolexpr, stmt));
+		}
+		
+		// Check for 'begin' keyword
+		if (curr().equals(new Token("begin"))) {
+			match("begin");
+			NodeBlock block = parseBlock();
+			match("end");
+			return new NodeStmt(block);
+		}
+		
+		// Otherwise, it's an assignment
 		NodeAssn assn = parseAssn();
-		match(";");
-		NodeStmt stmt = new NodeStmt(assn);
-		return stmt;
+		return new NodeStmt(assn);
 	}
 
 	/**
 	 * Parses a complete program.
 	 * @param program the source code to parse
-	 * @return the parsed statement node
+	 * @return the parsed block node
 	 * @throws SyntaxException if parsing fails
 	 */
 	public Node parse(String program) throws SyntaxException {
 		scanner = new Scanner(program);
 		scanner.next();
-		NodeStmt stmt = parseStmt();
+		NodeBlock block = parseBlock();
 		match("EOF");
-		return stmt;
+		return block;
 	}
 
 }

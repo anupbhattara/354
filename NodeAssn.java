@@ -25,7 +25,7 @@ public class NodeAssn extends Node {
 	 * @throws EvalException if evaluation fails
 	 */
 	public double eval(Environment env) throws EvalException {
-		return env.put(id, new NodeWr(expr).eval(env));
+		return env.put(id, expr.eval(env));
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class NodeAssn extends Node {
 	 * @return C code string representation
 	 */
 	public String code() {
-		return id + "=" + expr.code() + ";" + new NodeWr(expr).code();
+		return id + "=" + expr.code() + ";";
 	}
 
 }
