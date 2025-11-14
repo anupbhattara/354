@@ -5,6 +5,9 @@
 public class NodeRd extends Node {
 
 	private String id;
+	
+	// Static scanner shared across all read operations
+	private static java.util.Scanner scanner = null;
 
 	/**
 	 * Constructs a new read node.
@@ -22,7 +25,9 @@ public class NodeRd extends Node {
 	 */
 	public double eval(Environment env) throws EvalException {
 		try {
-			java.util.Scanner scanner = new java.util.Scanner(System.in);
+			if (scanner == null) {
+				scanner = new java.util.Scanner(System.in);
+			}
 			double value = scanner.nextDouble();
 			env.put(id, value);
 			return value;
@@ -40,4 +45,3 @@ public class NodeRd extends Node {
 	}
 
 }
-

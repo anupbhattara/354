@@ -72,3 +72,23 @@ export Code=output
 java Main "x = 5; wr x"
 ```
 
+## Testing
+
+### Running the Test Suite
+
+A comprehensive regression test suite is provided in the test/ directory. To run all tests:
+
+$ cd test
+$ chmod +x run
+$ ./run
+
+### Test Structure
+
+Each test directory contains:
+
+prg, prg1, prg2 - Program files containing source code fragments
+
+exp - Expected output file
+
+inp - Input file (redirected to stdin for rd statements)
+    - Empty file if no input is needed

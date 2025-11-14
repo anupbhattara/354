@@ -1,0 +1,1 @@
+if x > 5 then wr 100 else wr 200

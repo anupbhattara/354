@@ -1,0 +1,1 @@
+sum = 0; count = 0; while count < 3 do begin rd x; sum = sum + x; count = count + 1 end; wr sum
