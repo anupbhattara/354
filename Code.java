@@ -3,6 +3,7 @@
  * It writes the generated C code to a file specified by the Code environment variable.
  */
 
+import java.util.HashMap;
 import java.io.*;
 
 public class Code {
